@@ -1,4 +1,4 @@
 myKitties
 =========
 
-Kitty App developed for a stress-reducing, cute bundles of fur
+Kitty App developed with stress-reducing, cute bundles of fur
