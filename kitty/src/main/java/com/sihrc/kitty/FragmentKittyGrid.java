@@ -43,7 +43,7 @@ public class FragmentKittyGrid extends Fragment{
 
     //Public Constructor to decide the kitties
     public FragmentKittyGrid(){
-        this.kitties = new ArrayList<String>();
+        this.kitties = new ArrayList<Kitty>();
     }
 
     @Override
