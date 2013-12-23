@@ -1,6 +1,7 @@
 package com.sihrc.kitty;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
@@ -18,14 +19,14 @@ import java.util.ArrayList;
  */
 public class AdapterImage extends BaseAdapter{
     //ArrayList Containing the Image Urls
-    ArrayList<String> urls;
+    ArrayList<Kitty> kitties;
 
     //Parent Activity
     Activity activity;
 
     //Public Constructor
-    public AdapterImage(Activity activity, ArrayList<String> urls){
-        this.urls = urls;
+    public AdapterImage(Activity activity, ArrayList<Kitty> kitties){
+        this.kitties = kitties;
         this.activity = activity;
     }
 
@@ -41,19 +42,10 @@ public class AdapterImage extends BaseAdapter{
             image = (ImageView) convertView;
         }
 
-        //Set Drawable based on URL
-        image.setImageDrawable(LoadImageFromURL(urls.get(position)));
+        //Set Image based on BitMap
+        Kitty kitty = kitties.get(position);
+        image.setImageBitmap(BitmapFactory.decodeByteArray(kitty.image, 0, kitty.image.length));
         return convertView;
-    }
-
-    //Grab Image from Web as Drawable
-    private Drawable LoadImageFromURL(String url) {
-        try {
-            return Drawable.createFromStream((InputStream) new URL(url).getContent(), "src name");
-        } catch (Exception e) {
-            Log.d("LoadImageFromURL Exception:", "Image could not be loaded");
-            return activity.getResources().getDrawable(R.drawable.kittynotfound);
-        }
     }
 
     @Override

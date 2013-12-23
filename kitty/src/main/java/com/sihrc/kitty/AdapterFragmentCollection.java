@@ -23,7 +23,7 @@ public class AdapterFragmentCollection extends FragmentStatePagerAdapter {
     }
 
     private void createFragments(){
-        fragments.add(new Fragment());
+        fragments.add(new FragmentKittyGrid());
     }
 
     @Override

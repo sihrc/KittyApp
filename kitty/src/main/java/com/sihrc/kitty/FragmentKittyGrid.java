@@ -1,16 +1,18 @@
 package com.sihrc.kitty;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -20,9 +22,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 /**
@@ -30,14 +33,17 @@ import java.util.LinkedHashSet;
  */
 public class FragmentKittyGrid extends Fragment{
     //List of kitties to show
-    ArrayList<String> kitties;
+    ArrayList<Kitty> kitties;
 
     //ImageAdapter
     AdapterImage kittyAdapter;
 
+    //Database
+    HandlerDatabase db;
+
     //Public Constructor to decide the kitties
-    public FragmentKittyGrid(ArrayList<String> kitties){
-        this.kitties = kitties;
+    public FragmentKittyGrid(){
+        this.kitties = new ArrayList<String>();
     }
 
     @Override
@@ -49,6 +55,8 @@ public class FragmentKittyGrid extends Fragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        db = new HandlerDatabase(getActivity());
+        db.open();
         populateGridView();
     }
 
@@ -59,16 +67,13 @@ public class FragmentKittyGrid extends Fragment{
     }
 
     //Update the Grid with new kitties
-    private void updateGridView(ArrayList<String> newUrls){
-        LinkedHashSet<String> uniqueKitties = new LinkedHashSet<String> ();
-        uniqueKitties.addAll(kitties);
-        uniqueKitties.addAll(newUrls);
+    private void updateGridView(){
         kitties.clear();
-        kitties.addAll(uniqueKitties);
+        kitties.addAll(db.getAllKitties());
         populateGridView();
     }
 
-    //Get New Kitties - Async Task
+    //Get New Kitty Urls - Async Task
     private void getKitties(final String mode){
         new AsyncTask<Void, Void, String>() {
             HttpClient client = new DefaultHttpClient();
@@ -109,17 +114,55 @@ public class FragmentKittyGrid extends Fragment{
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
-                ArrayList<String> newUrls = new ArrayList<String>();
                 try {
                     JSONArray results = new JSONObject(s).getJSONObject("responseData").getJSONArray("results");
                     for (int i = 0; i < results.length(); i++){
-                        newUrls.add(results.getJSONObject(i).getString("unescapedUrl"));
+                        getImageAndPush(results.getJSONObject(i).getString("unescapedUrl"));
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
-                updateGridView(newUrls);
+
             }
         }.execute();
     }
+
+    private void getImageAndPush(final String url){
+        new AsyncTask<Void, Void, byte[]>(){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected byte[] doInBackground(Void... params) {
+                DefaultHttpClient client = new DefaultHttpClient();
+                HttpGet request = new HttpGet(url);
+                try{
+                    HttpResponse response = client.execute(request);
+                    HttpEntity entity = response.getEntity();
+                    int imageLength = (int)(entity.getContentLength());
+                    InputStream is = entity.getContent();
+                    byte[] imageBlob = new byte[imageLength];
+                    int bytesRead = 0;
+                    while (bytesRead < imageLength) {
+                        int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
+                        bytesRead += n;
+                    }
+                    return new byte[0];
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return new byte[0];
+                }
+            }
+
+            @Override
+            protected void onPostExecute(byte[] bytes) {
+                super.onPostExecute(bytes);
+                db.addKittyToDatabase(bytes);
+                updateGridView();
+            }
+        }.execute();
+    }
+
 }
