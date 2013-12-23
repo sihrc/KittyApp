@@ -43,8 +43,31 @@ public class HandlerDatabase {
         database.insert(ModelDatabase.TABLE_NAME, null, values);
     }
 
+    //Get all Kitties from the Database
     public ArrayList<Kitty> getAllKitties(){
+        database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null);
         return new ArrayList<Kitty>();
+    }
+
+    //Sweep Through Cursor and return a List of Kitties
+    private ArrayList<Kitty> sweepCursor(Cursor cursor){
+        ArrayList<Kitty> kitties = new ArrayList<Kitty>();
+
+        //Get to the beginning of the cursor
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()){
+            Kitty kitty = new Kitty(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getBlob(5)
+            );
+            kitty.id = cursor.getString(0);
+            kitties.add(kitty);
+            cursor.moveToNext();
+        }
+        return kitties;
     }
     //Get Writable Database - open the database
     public void open(){
