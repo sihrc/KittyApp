@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -60,7 +61,10 @@ public class ActivityMain extends FragmentActivity{
          */
         //Get the ActionBar
         actionBar = getActionBar();
-
+        if (actionBar != null){
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            Log.d("ActionBar", "is null");
+        }
         //Create the Tab Listener
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {
             @Override
@@ -76,7 +80,11 @@ public class ActivityMain extends FragmentActivity{
         };
 
         //Create Tabs and Set Listener
+        //Tab 1
         actionBar.addTab(actionBar.newTab().setText("New Kitties").setTabListener(tabListener));
+        //Tab 2
+        actionBar.addTab(actionBar.newTab().setText("Litter Box").setTabListener(tabListener));
+
     }
 
     @Override
