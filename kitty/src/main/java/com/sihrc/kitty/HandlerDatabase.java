@@ -4,8 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by chris on 12/23/13.
@@ -35,11 +37,11 @@ public class HandlerDatabase {
     //Adds New Kitty to the Database
     public void addKittyToDatabase(byte[] image){
         ContentValues values = new ContentValues();
-        values.put(ModelDatabase.KITTY_NAME, "");
         values.put(ModelDatabase.KITTY_SEEN, "never");
         values.put(ModelDatabase.KITTY_FAVORITE, "false");
         values.put(ModelDatabase.KITTY_CATEGORY, "none");
         values.put(ModelDatabase.KITTY_IMAGE, image);
+        Log.d("ImageByteArray", Arrays.toString(image));
         database.insert(ModelDatabase.TABLE_NAME, null, values);
     }
 

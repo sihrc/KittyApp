@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 /**
@@ -57,6 +58,7 @@ public class FragmentKittyGrid extends Fragment{
         super.onActivityCreated(savedInstanceState);
         db = new HandlerDatabase(getActivity());
         db.open();
+        getKitties("next");
         populateGridView();
     }
 
@@ -149,7 +151,7 @@ public class FragmentKittyGrid extends Fragment{
                         int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
                         bytesRead += n;
                     }
-                    return new byte[0];
+                    return imageBlob;
                 } catch (Exception e) {
                     e.printStackTrace();
                     return new byte[0];
@@ -159,6 +161,7 @@ public class FragmentKittyGrid extends Fragment{
             @Override
             protected void onPostExecute(byte[] bytes) {
                 super.onPostExecute(bytes);
+                Log.d("ImageByteArrayInFragment", Arrays.toString(bytes));
                 db.addKittyToDatabase(bytes);
                 updateGridView();
             }

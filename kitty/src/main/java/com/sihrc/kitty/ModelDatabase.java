@@ -29,10 +29,10 @@ public class ModelDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_CREATE = "create table "
             + TABLE_NAME + "("
             + KITTY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + KITTY_NAME + "TEXT NOT NULL, "
-            + KITTY_SEEN + "TEXT NOT NULL, "
-            + KITTY_FAVORITE + "TEXT NOT NULL, "
-            + KITTY_CATEGORY + "TEXT NOT NULL, "
+            + KITTY_NAME + " TEXT NOT NULL, "
+            + KITTY_SEEN + " TEXT NOT NULL, "
+            + KITTY_FAVORITE + " TEXT NOT NULL, "
+            + KITTY_CATEGORY + " TEXT NOT NULL, "
             + KITTY_IMAGE + "BLOB );";
 
     //Default Constructor
