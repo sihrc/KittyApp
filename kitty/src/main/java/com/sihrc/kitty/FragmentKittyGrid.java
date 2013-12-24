@@ -60,12 +60,20 @@ public class FragmentKittyGrid extends Fragment{
         db = new HandlerDatabase(getActivity());
         db.open();
         getKitties("next");
+        populateGridView();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.d("FragmentKittyGrid", "onStart");
+        populateGridView();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("FragmentKittyGrid", "onResume");
         populateGridView();
     }
 

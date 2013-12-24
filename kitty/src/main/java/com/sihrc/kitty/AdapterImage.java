@@ -45,21 +45,22 @@ public class AdapterImage extends BaseAdapter{
         //Set Image based on BitMap
         Kitty kitty = kitties.get(position);
         image.setImageBitmap(BitmapFactory.decodeByteArray(kitty.image, 0, kitty.image.length));
-        return convertView;
+        Log.d("CheckPoint", "AdapterImage");
+        return image;
     }
 
     @Override
     public int getCount() {
-        return 0;
+        return kitties.size();
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return Long.valueOf(kitties.get(position).id);
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return kitties.get(position);
     }
 }
