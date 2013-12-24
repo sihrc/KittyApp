@@ -56,15 +56,23 @@ public class FragmentKittyGrid extends Fragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.d("FragmentKittyGrid", "onActivityCreated");
         db = new HandlerDatabase(getActivity());
         db.open();
         getKitties("next");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("FragmentKittyGrid", "onStart");
         populateGridView();
     }
 
+    //Populate View
     private void populateGridView(){
         GridView grid = (GridView) getView().findViewById(R.id.fragment_kitty_grid);
-        kittyAdapter = new AdapterImage(getActivity(), kitties);
+        kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties());
         grid.setAdapter(kittyAdapter);
     }
 
