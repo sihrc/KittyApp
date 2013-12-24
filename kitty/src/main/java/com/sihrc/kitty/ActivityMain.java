@@ -1,5 +1,7 @@
 package com.sihrc.kitty;
 
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -15,11 +17,16 @@ public class ActivityMain extends FragmentActivity{
      */
     ViewPager pager;
     AdapterFragmentCollection fragmentAdapter;
+    ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /**
+         * ViewPager
+         */
 
         //Pass the fragment manager to the collection adapter
         fragmentAdapter = new AdapterFragmentCollection(
@@ -31,6 +38,45 @@ public class ActivityMain extends FragmentActivity{
 
         //Set the view pager's adapter
         pager.setAdapter(fragmentAdapter);
+
+        //When Page Changes - pager should change accordingly
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i2) {}
+
+            @Override
+            public void onPageSelected(int i) {
+                if (actionBar != null){
+                    actionBar.setSelectedNavigationItem(i);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {}
+        });
+
+        /**
+         * ActionBar Tabs
+         */
+        //Get the ActionBar
+        actionBar = getActionBar();
+
+        //Create the Tab Listener
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            @Override
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                pager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {}
+
+            @Override
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {}
+        };
+
+        //Create Tabs and Set Listener
+        actionBar.addTab(actionBar.newTab().setText("New Kitties").setTabListener(tabListener));
     }
 
     @Override

@@ -20,6 +20,7 @@ public class AdapterFragmentCollection extends FragmentStatePagerAdapter {
     public AdapterFragmentCollection(FragmentManager fragMan){
         super(fragMan);
         createFragments();
+        fragMan.beginTransaction().add(fragments.get(0), "MAIN");
     }
 
     private void createFragments(){
@@ -28,12 +29,12 @@ public class AdapterFragmentCollection extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 0;
+        return fragments.size();
     }
 
     @Override
     public Fragment getItem(int i) {
-        return null;
+        return fragments.get(i);
     }
 
 
