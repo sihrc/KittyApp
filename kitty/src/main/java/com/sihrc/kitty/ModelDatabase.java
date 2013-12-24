@@ -33,7 +33,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
             + KITTY_SEEN + " TEXT NOT NULL, "
             + KITTY_FAVORITE + " TEXT NOT NULL, "
             + KITTY_CATEGORY + " TEXT NOT NULL, "
-            + KITTY_IMAGE + "BLOB );";
+            + KITTY_IMAGE + " BLOB );";
 
     //Default Constructor
     public ModelDatabase(Context context){

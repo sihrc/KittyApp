@@ -37,6 +37,7 @@ public class HandlerDatabase {
     //Adds New Kitty to the Database
     public void addKittyToDatabase(byte[] image){
         ContentValues values = new ContentValues();
+        values.put(ModelDatabase.KITTY_NAME, "");
         values.put(ModelDatabase.KITTY_SEEN, "never");
         values.put(ModelDatabase.KITTY_FAVORITE, "false");
         values.put(ModelDatabase.KITTY_CATEGORY, "none");
@@ -47,8 +48,7 @@ public class HandlerDatabase {
 
     //Get all Kitties from the Database
     public ArrayList<Kitty> getAllKitties(){
-        database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null);
-        return new ArrayList<Kitty>();
+        return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null));
     }
 
     //Sweep Through Cursor and return a List of Kitties
@@ -58,6 +58,7 @@ public class HandlerDatabase {
         //Get to the beginning of the cursor
         cursor.moveToFirst();
         while (!cursor.isAfterLast()){
+            //Get the Kitty
             Kitty kitty = new Kitty(
                     cursor.getString(1),
                     cursor.getString(2),
@@ -65,8 +66,11 @@ public class HandlerDatabase {
                     cursor.getString(4),
                     cursor.getBlob(5)
             );
+            //Set the Kitty Id
             kitty.id = cursor.getString(0);
+            //Add the Kitty
             kitties.add(kitty);
+            //Go on to the next Kitty
             cursor.moveToNext();
         }
         return kitties;
