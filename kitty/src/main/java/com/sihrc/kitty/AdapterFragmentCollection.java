@@ -1,8 +1,5 @@
 package com.sihrc.kitty;
 
-
-
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -24,8 +21,8 @@ public class AdapterFragmentCollection extends FragmentStatePagerAdapter {
     }
 
     private void createFragments(){
-        fragments.add(new FragmentKittyGrid());
-        fragments.add(new FragmentKittyGrid());
+        fragments.add(new FragmentKitties());
+        fragments.add(new FragmentKitties());
     }
 
     @Override

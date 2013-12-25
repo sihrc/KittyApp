@@ -20,6 +20,8 @@ public class ActivityMain extends FragmentActivity{
     AdapterFragmentCollection fragmentAdapter;
     ActionBar actionBar;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

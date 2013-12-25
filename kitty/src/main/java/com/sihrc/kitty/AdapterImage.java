@@ -2,16 +2,12 @@ package com.sihrc.kitty;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-
-import java.io.InputStream;
-import java.net.URL;
+import android.widget.ListView;
 import java.util.ArrayList;
 
 /**
@@ -35,9 +31,9 @@ public class AdapterImage extends BaseAdapter{
         ImageView image;
         if (convertView == null){ //Grab View if haven't already
             image = new ImageView(activity.getApplicationContext());
-            image.setLayoutParams(new GridView.LayoutParams(180,180));
+            image.setLayoutParams(new ListView.LayoutParams(400, 400));
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            image.setPadding(8, 8, 8, 8);
+            image.setPadding(1, 1, 1, 1);
         } else { //Cast ImageView if view not null
             image = (ImageView) convertView;
         }

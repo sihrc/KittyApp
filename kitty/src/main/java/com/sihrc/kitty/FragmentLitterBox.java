@@ -1,15 +1,14 @@
 package com.sihrc.kitty;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
+import android.widget.ListView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -24,15 +23,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 
 /**
  * Created by chris on 12/22/13.
  */
-public class FragmentKittyGrid extends Fragment{
+public class FragmentLitterBox extends Fragment{
     //List of kitties to show
     ArrayList<Kitty> kitties;
 
@@ -43,7 +40,7 @@ public class FragmentKittyGrid extends Fragment{
     HandlerDatabase db;
 
     //Public Constructor to decide the kitties
-    public FragmentKittyGrid(){
+    public FragmentLitterBox(){
         this.kitties = new ArrayList<Kitty>();
     }
 
@@ -56,7 +53,7 @@ public class FragmentKittyGrid extends Fragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("FragmentKittyGrid", "onActivityCreated");
+        Log.d("FragmentKitties", "onActivityCreated");
         db = new HandlerDatabase(getActivity());
         db.open();
         getKitties("next");
@@ -66,20 +63,20 @@ public class FragmentKittyGrid extends Fragment{
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("FragmentKittyGrid", "onStart");
+        Log.d("FragmentKitties", "onStart");
         populateGridView();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("FragmentKittyGrid", "onResume");
+        Log.d("FragmentKitties", "onResume");
         populateGridView();
     }
 
     //Populate View
     private void populateGridView(){
-        GridView grid = (GridView) getView().findViewById(R.id.fragment_kitty_grid);
+        ListView grid = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
         kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties());
         grid.setAdapter(kittyAdapter);
     }
@@ -106,8 +103,9 @@ public class FragmentKittyGrid extends Fragment{
             @Override
             protected String doInBackground(Void... params) {
                 //Get next url
-                String[] parts = (getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("url","https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=cutebabykitten&start=0&userip=MyIP&imgsz=large")).split("start=");
+                String[] parts = (getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("url","https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=cute+baby+kitten&start=0&userip=MyIP&imgsz=large")).split("start=");
                 String url = parts[0] + "start=" + String.valueOf((Integer.valueOf(parts[1].substring(0, parts[1].indexOf('&'))) + (mode.equals("next")?1:-1))) + parts[1].substring(parts[1].indexOf("&"));
+                Log.d("KittyURL", url);
 
                 //HTTP GET Request
                 HttpGet getImages = new HttpGet(url);
@@ -122,6 +120,8 @@ public class FragmentKittyGrid extends Fragment{
                         sb.append(line);
                         sb.append(System.getProperty("line.separator"));
                     }
+                    //Save recent URL
+                    getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("url",url).commit();
                     return sb.toString();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -157,12 +157,14 @@ public class FragmentKittyGrid extends Fragment{
                 DefaultHttpClient client = new DefaultHttpClient();
                 HttpGet request = new HttpGet(url);
                 try{
+                    //Request google image search results
                     HttpResponse response = client.execute(request);
                     HttpEntity entity = response.getEntity();
                     int imageLength = (int)(entity.getContentLength());
                     InputStream is = entity.getContent();
                     byte[] imageBlob = new byte[imageLength];
                     int bytesRead = 0;
+                    //Pull the image's byte array
                     while (bytesRead < imageLength) {
                         int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
                         bytesRead += n;
