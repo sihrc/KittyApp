@@ -1,5 +1,6 @@
 package com.sihrc.kitty;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -137,7 +138,7 @@ public class FragmentKitties extends Fragment {
             @Override
             protected String doInBackground(Void... params) {
                 //Get next url
-                String url = getSearchURL("cute baby kitten");
+                String url = getSearchURL();
 
                 //HTTP GET Request
                 HttpGet getImages = new HttpGet(url);
@@ -178,9 +179,9 @@ public class FragmentKitties extends Fragment {
     }
 
     //Get Search URL
-    public String getSearchURL(String search){
-        Log.d("URLSIZE", db.getAllKitties().size() + "");
-        return "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + search.replace(" ", "+") + "&start=" + db.getAllKitties().size() + "&userip=MyIP&imgsz=large";
+    public String getSearchURL(){
+        String search = getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("search", "cute baby kitten");
+        return "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + search.replace(" ", "+") + "&start=" + db.getKittiesByCategory(search).size() + "&userip=MyIP&imgsz=large";
     }
     //Get Image and Push
     private void getImageAndPush(final String url){
@@ -250,5 +251,6 @@ public class FragmentKitties extends Fragment {
 
     private void changeSearchTerm(){
         //TODO
+        getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("search", "What").commit();
     }
 }

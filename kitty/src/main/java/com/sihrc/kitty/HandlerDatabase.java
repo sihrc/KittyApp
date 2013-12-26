@@ -46,9 +46,49 @@ public class HandlerDatabase {
         database.insert(ModelDatabase.TABLE_NAME, null, values);
     }
 
+    //Update Kitty
+    public void updateKitty(Kitty kitty){
+        ContentValues values = new ContentValues();
+        values.put(ModelDatabase.KITTY_NAME, kitty.name);
+        values.put(ModelDatabase.KITTY_SEEN, kitty.seen);
+        values.put(ModelDatabase.KITTY_FAVORITE, kitty.favorite);
+        values.put(ModelDatabase.KITTY_CATEGORY, kitty.category);
+        values.put(ModelDatabase.KITTY_IMAGE, kitty.image);
+        
+        database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.KITTY_ID + " like %'" + kitty.id + "%'", null);
+    }
+
     //Get all Kitties from the Database
     public ArrayList<Kitty> getAllKitties(){
         return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null));
+    }
+
+
+    public ArrayList<Kitty> getKittiesByCategory(String cat){
+        return sweepCursor(database.query(
+                ModelDatabase.TABLE_NAME,
+                allColumns,
+                ModelDatabase.KITTY_CATEGORY + " like %'" + cat + "'% AND " + ModelDatabase.KITTY_FAVORITE + " like %'" + "false '%",
+                null, null, null, null, null
+        ));
+    }
+
+    //Delete Kitties
+    public void deleteKittiesByCategory(String cat){
+        database.delete(
+                ModelDatabase.TABLE_NAME,
+                ModelDatabase.KITTY_CATEGORY + " like %'" + cat + "'% AND " + ModelDatabase.KITTY_FAVORITE + " like %'" + "false '%",
+                null
+        );
+    }
+
+    //Delete Kitty
+    public void deleteKittyById(String id){
+        database.delete(
+                ModelDatabase.TABLE_NAME,
+                ModelDatabase.KITTY_ID + " like %'" + id,
+                null
+        );
     }
 
     //Sweep Through Cursor and return a List of Kitties
@@ -76,11 +116,7 @@ public class HandlerDatabase {
         return kitties;
     }
 
-    //Delete all Kitties
-    public void delete(){
-        database.delete(ModelDatabase.TABLE_NAME, ModelDatabase.KITTY_ID + " like '%" + "%'", null);
-    }
-    //Get Writable Database - open the database
+     //Get Writable Database - open the database
     public void open(){
         database = model.getWritableDatabase();
     }
