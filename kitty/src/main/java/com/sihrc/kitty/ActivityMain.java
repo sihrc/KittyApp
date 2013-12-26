@@ -102,17 +102,11 @@ public class ActivityMain extends FragmentActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_delete:
-                db.delete();
-        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        super.onCreateOptionsMenu(menu);
         return super.onCreateOptionsMenu(menu);
     }
 }

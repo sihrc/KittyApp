@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -31,33 +34,38 @@ import java.util.Arrays;
  * Created by chris on 12/22/13.
  */
 public class FragmentKitties extends Fragment {
-    //List of kitties to show
+    /**
+     * Handles the List of Kitties
+     */
     ArrayList<Kitty> kitties;
-
-    //ImageAdapter
     AdapterImage kittyAdapter;
 
-    //Database
-    HandlerDatabase db;
+    /**
+     * Database
+     */
+    HandlerDatabase db;     //Database Handler
+    Integer isReady = 0;    //isReady to download new kitties
 
-    //Server is Ready for more Kittens
-    Integer isReady = 0;
 
     //Public Constructor to decide the kitties
     public FragmentKitties(){}
 
+    //When the View is first created
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        //Return the appropriate Fragment View
         return inflater.inflate(R.layout.fragment_kitty_grid, null);
     }
 
+    //When the Activity is done being created
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        //Grab the Database Handler from the Activity
         db = ((ActivityMain) getActivity()).db;
 
-        //ListView Grid
+        //Setup the ListView
         ListView grid = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
 
         //ListView Adapter
@@ -65,13 +73,13 @@ public class FragmentKitties extends Fragment {
         kittyAdapter = new AdapterImage(getActivity(), kitties);
         grid.setAdapter(kittyAdapter);
 
-        //Check for kitties
+        //Check for kitties on first run
         if (kittyAdapter.getCount() == 0){
             getKitties();
             Toast.makeText(getActivity(), "Loaded more images!", Toast.LENGTH_SHORT).show();
         }
 
-        //Set OnScroll ListenerInteger previousSize = 0;
+        //Set OnScroll Listener
         grid.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -80,7 +88,7 @@ public class FragmentKitties extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.i("SCROLLINGSHIT", firstVisibleItem + " " + visibleItemCount + " " + kittyAdapter.getCount());
+                //Log.i("SCROLLINGSHIT", firstVisibleItem + " " + visibleItemCount + " " + kittyAdapter.getCount());
                 if (firstVisibleItem > kittyAdapter.getCount() - 10 && isReady == 0){
                     getKitties();
                 }
@@ -88,27 +96,29 @@ public class FragmentKitties extends Fragment {
         });
     }
 
+    //When the Fragment is started
     @Override
     public void onStart() {
         super.onStart();
         updateGridView();
-        Log.d("FragmentKitties", "onStart");
+       // Log.d("FragmentKitties", "onStart");
     }
 
+    //When the Fragment is resumed
     @Override
     public void onResume() {
         super.onResume();
         updateGridView();
-        Log.d("FragmentKitties", "onResume");
+        //Log.d("FragmentKitties", "onResume");
     }
 
     //Update the Grid with new kitties
     private void updateGridView(){
         kitties.clear();
         kitties.addAll(db.getAllKitties());
-        Log.d("ArrayAdapterSize", kitties.size() + "");
         kittyAdapter.notifyDataSetChanged();
-        Log.d("ArrayAdapterSize", kittyAdapter.getCount() + "");
+        //Log.d("ArrayAdapterSize", kitties.size() + "");
+        //Log.d("ArrayAdapterSize", kittyAdapter.getCount() + "");
     }
 
     //Get New Kitty Urls - Async Task
@@ -167,6 +177,7 @@ public class FragmentKitties extends Fragment {
         }.execute();
     }
 
+    //Get Search URL
     public String getSearchURL(String search){
         Log.d("URLSIZE", db.getAllKitties().size() + "");
         return "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + search.replace(" ", "+") + "&start=" + db.getAllKitties().size() + "&userip=MyIP&imgsz=large";
@@ -212,5 +223,32 @@ public class FragmentKitties extends Fragment {
                 isReady -= 1;
             }
         }.execute();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        getActivity().getMenuInflater().inflate(R.menu.kitties, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_hide:
+                hideAllKitties();
+                break;
+            case R.id.action_search:
+                changeSearchTerm();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void hideAllKitties(){
+        //TODO
+    }
+
+    private void changeSearchTerm(){
+        //TODO
     }
 }
