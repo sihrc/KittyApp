@@ -5,15 +5,14 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import java.util.ArrayList;
 
 /**
  * Created by chris on 12/22/13.
  */
-public class AdapterImage extends BaseAdapter{
+public class AdapterImage extends ArrayAdapter{
     //ArrayList Containing the Image Urls
     ArrayList<Kitty> kitties;
 
@@ -22,6 +21,7 @@ public class AdapterImage extends BaseAdapter{
 
     //Public Constructor
     public AdapterImage(Activity activity, ArrayList<Kitty> kitties){
+        super(activity, R.layout.listitem_kitty, kitties);
         this.kitties = kitties;
         this.activity = activity;
     }
@@ -30,10 +30,8 @@ public class AdapterImage extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView image;
         if (convertView == null){ //Grab View if haven't already
-            image = new ImageView(activity.getApplicationContext());
-            image.setLayoutParams(new ListView.LayoutParams(400, 400));
+            image = (ImageView) activity.getLayoutInflater().inflate(R.layout.listitem_kitty,null);
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            image.setPadding(1, 1, 1, 1);
         } else { //Cast ImageView if view not null
             image = (ImageView) convertView;
         }
@@ -41,22 +39,6 @@ public class AdapterImage extends BaseAdapter{
         //Set Image based on BitMap
         Kitty kitty = kitties.get(position);
         image.setImageBitmap(BitmapFactory.decodeByteArray(kitty.image, 0, kitty.image.length));
-        Log.d("CheckPoint", "AdapterImage");
         return image;
-    }
-
-    @Override
-    public int getCount() {
-        return kitties.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return Long.valueOf(kitties.get(position).id);
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return kitties.get(position);
     }
 }

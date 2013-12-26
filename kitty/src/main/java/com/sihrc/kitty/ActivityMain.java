@@ -20,12 +20,23 @@ public class ActivityMain extends FragmentActivity{
     AdapterFragmentCollection fragmentAdapter;
     ActionBar actionBar;
 
+    /**
+     * Database
+     */
+    HandlerDatabase db;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /**
+         * Database
+         */
+
+        db = new HandlerDatabase(this);
+        db.open();
 
         /**
          * ViewPager
@@ -91,11 +102,17 @@ public class ActivityMain extends FragmentActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                db.delete();
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        super.onCreateOptionsMenu(menu);
         return super.onCreateOptionsMenu(menu);
     }
 }

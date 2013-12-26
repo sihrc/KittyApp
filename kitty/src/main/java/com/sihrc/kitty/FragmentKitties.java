@@ -1,6 +1,5 @@
 package com.sihrc.kitty;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -39,10 +40,11 @@ public class FragmentKitties extends Fragment {
     //Database
     HandlerDatabase db;
 
+    //Server is Ready for more Kittens
+    Integer isReady = 0;
+
     //Public Constructor to decide the kitties
-    public FragmentKitties(){
-        this.kitties = new ArrayList<Kitty>();
-    }
+    public FragmentKitties(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,52 +55,71 @@ public class FragmentKitties extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("FragmentKitties", "onActivityCreated");
-        db = new HandlerDatabase(getActivity());
-        db.open();
-        populateGridView();
+        db = ((ActivityMain) getActivity()).db;
+
+        //ListView Grid
+        ListView grid = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
+
+        //ListView Adapter
+        kitties = db.getAllKitties();
+        kittyAdapter = new AdapterImage(getActivity(), kitties);
+        grid.setAdapter(kittyAdapter);
+
+        //Check for kitties
+        if (kittyAdapter.getCount() == 0){
+            getKitties();
+            Toast.makeText(getActivity(), "Loaded more images!", Toast.LENGTH_SHORT).show();
+        }
+
+        //Set OnScroll ListenerInteger previousSize = 0;
+        grid.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                Log.i("SCROLLINGSHIT", firstVisibleItem + " " + visibleItemCount + " " + kittyAdapter.getCount());
+                if (firstVisibleItem > kittyAdapter.getCount() - 10 && isReady == 0){
+                    getKitties();
+                }
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        updateGridView();
         Log.d("FragmentKitties", "onStart");
-        populateGridView();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        updateGridView();
         Log.d("FragmentKitties", "onResume");
-        populateGridView();
-    }
-
-    //Populate View
-    private void populateGridView(){
-        AddKittiesListView grid = (AddKittiesListView) getView().findViewById(R.id.fragment_kitty_listView);
-        kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties());
-        grid.setAdapter(kittyAdapter);
-        if (kittyAdapter.getCount() == 0){
-            getKitties("next");
-        }
-        grid.setOverscrollFooter(getResources().getDrawable(R.drawable.ic_launcher));
     }
 
     //Update the Grid with new kitties
     private void updateGridView(){
         kitties.clear();
         kitties.addAll(db.getAllKitties());
-        populateGridView();
+        Log.d("ArrayAdapterSize", kitties.size() + "");
+        kittyAdapter.notifyDataSetChanged();
+        Log.d("ArrayAdapterSize", kittyAdapter.getCount() + "");
     }
 
     //Get New Kitty Urls - Async Task
-    private void getKitties(final String mode){
+    private void getKitties(){
         new AsyncTask<Void, Void, String>() {
             HttpClient client = new DefaultHttpClient();
             HttpResponse response;
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                isReady += 1;
                 //Request TimeOut
                 HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000);
             }
@@ -106,9 +127,7 @@ public class FragmentKitties extends Fragment {
             @Override
             protected String doInBackground(Void... params) {
                 //Get next url
-                String[] parts = (getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("url","https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=cute+baby+kitten&start=0&userip=MyIP&imgsz=large")).split("start=");
-                String url = parts[0] + "start=" + String.valueOf((Integer.valueOf(parts[1].substring(0, parts[1].indexOf('&'))) + (mode.equals("next")?1:-1))) + parts[1].substring(parts[1].indexOf("&"));
-                Log.d("KittyURL", url);
+                String url = getSearchURL("cute baby kitten");
 
                 //HTTP GET Request
                 HttpGet getImages = new HttpGet(url);
@@ -123,8 +142,6 @@ public class FragmentKitties extends Fragment {
                         sb.append(line);
                         sb.append(System.getProperty("line.separator"));
                     }
-                    //Save recent URL
-                    getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("url",url).commit();
                     return sb.toString();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -142,17 +159,25 @@ public class FragmentKitties extends Fragment {
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
+                    Log.d("ReturnedResponse", s);
                 }
+                isReady -= 1;
 
             }
         }.execute();
     }
 
+    public String getSearchURL(String search){
+        Log.d("URLSIZE", db.getAllKitties().size() + "");
+        return "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + search.replace(" ", "+") + "&start=" + db.getAllKitties().size() + "&userip=MyIP&imgsz=large";
+    }
+    //Get Image and Push
     private void getImageAndPush(final String url){
         new AsyncTask<Void, Void, byte[]>(){
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                isReady += 1;
             }
 
             @Override
@@ -182,40 +207,10 @@ public class FragmentKitties extends Fragment {
             @Override
             protected void onPostExecute(byte[] bytes) {
                 super.onPostExecute(bytes);
-                Log.d("ImageByteArrayInFragment", Arrays.toString(bytes));
                 db.addKittyToDatabase(bytes);
                 updateGridView();
+                isReady -= 1;
             }
         }.execute();
-    }
-
-    public class AddKittiesListView extends ListView {
-
-        public AddKittiesListView(Context context){
-            super(context);
-            setOverScrollMode(OVER_SCROLL_ALWAYS);
-        }
-
-        @Override
-        protected boolean overScrollBy(int deltaX, int deltaY, int scrollX,
-                                       int scrollY, int scrollRangeX, int scrollRangeY,
-                                       int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
-
-            return super.overScrollBy(0, deltaY, 0, scrollY, 0, scrollRangeY, 0,
-                    200, isTouchEvent);
-        }
-
-        @Override
-        protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX,
-                                      boolean clampedY) {
-
-            Log.v("ListView", "scrollX:" + scrollX + " scrollY:" + scrollY + " clampedX:"
-                    + clampedX + " clampedY:" + clampedX);
-            if (clampedY){
-                Log.v("ListView", "OverScroll Clamped Y");
-                getKitties("next");
-            }
-            super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-        }
     }
 }

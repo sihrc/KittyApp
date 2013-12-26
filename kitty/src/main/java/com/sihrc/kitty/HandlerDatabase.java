@@ -75,6 +75,11 @@ public class HandlerDatabase {
         }
         return kitties;
     }
+
+    //Delete all Kitties
+    public void delete(){
+        database.delete(ModelDatabase.TABLE_NAME, ModelDatabase.KITTY_ID + " like '%" + "%'", null);
+    }
     //Get Writable Database - open the database
     public void open(){
         database = model.getWritableDatabase();
