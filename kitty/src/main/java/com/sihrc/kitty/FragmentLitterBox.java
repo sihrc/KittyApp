@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +33,6 @@ public class FragmentLitterBox extends FragmentOnSelectRefresh {
         super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true); //Options Menu
         //Return the appropriate Fragment View
-        Log.d("FragmentLitterBox", "OnCreateView");
         return inflater.inflate(R.layout.fragment_litterbox, null);
     }
 
@@ -41,7 +40,6 @@ public class FragmentLitterBox extends FragmentOnSelectRefresh {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("FragmentLitterBox", "OnActivityCreated");
         //Grab the Database Handler from the Activity
         db = ((ActivityMain) getActivity()).db;
 
@@ -57,7 +55,9 @@ public class FragmentLitterBox extends FragmentOnSelectRefresh {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Kitty curKitty = (Kitty) parent.getItemAtPosition(position);
                 if (curKitty != null){
-                    Toast.makeText(getActivity(), curKitty.name + " says hi!", Toast.LENGTH_SHORT).show();
+                    Intent in = new Intent(getActivity(), ActivityKittenDetails.class);
+                    in.putExtra("kittyId", curKitty.url);
+                    startActivity(in);
                     refreshFragment();
                 }
             }
@@ -67,19 +67,15 @@ public class FragmentLitterBox extends FragmentOnSelectRefresh {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 final Kitty curKitty = (Kitty) parent.getItemAtPosition(position);
-                Toast.makeText(getActivity(), "I WAS LONG CLICKED", Toast.LENGTH_SHORT).show();
                 if (curKitty != null){
                     new AlertDialog.Builder(getActivity())
-                            .setTitle("View details for " + curKitty.name + "?")
+                            .setTitle("Remove " + curKitty.name + "?")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Intent in = new Intent(getActivity(), ActivityKittenDetails.class);
-                                    in.putExtra("kittyId", curKitty.url);
-                                    dialog.dismiss();
-                                    startActivity(in);
+                                    curKitty.favorite = "false";
+                                    db.updateKitty(curKitty);
                                     refreshFragment();
-
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -102,20 +98,17 @@ public class FragmentLitterBox extends FragmentOnSelectRefresh {
         kittyAdapter.addAll(db.getOwnedKitties());
         kittyAdapter.notifyDataSetChanged();
         kittyList.invalidate();
-        Log.d("DEBUGGER", kittyAdapter.toString());
     }
 
     @Override
     public void onStart() {
         super.onStart();
         refreshFragment();
-        Log.d("FragmentLitterBox", "OnStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
         refreshFragment();
-        Log.d("FragmentLitterBox", "OnResume");
     }
 }

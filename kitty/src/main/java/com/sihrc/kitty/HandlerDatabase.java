@@ -43,7 +43,7 @@ public class HandlerDatabase {
             values.put(ModelDatabase.KITTY_VISIBLE, "true");
             values.put(ModelDatabase.KITTY_FAVORITE, "false");
             values.put(ModelDatabase.KITTY_CATEGORY, cat);
-            values.put(ModelDatabase.KITTY_STATUS, "Status: N/A");
+            values.put(ModelDatabase.KITTY_STATUS, "N/A");
             values.put(ModelDatabase.KITTY_IMAGE, image);
         database.insertWithOnConflict(ModelDatabase.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }

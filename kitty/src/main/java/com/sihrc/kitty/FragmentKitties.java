@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -78,7 +78,6 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
 
         //Check for kitties on first run
         if (kittyAdapter.getCount() == 0){
-            Log.d("DEBUGGER", "Getting Kitties");
             Toast.makeText(getActivity(), "Loading more images!", Toast.LENGTH_LONG).show();
             getKitties();
         }
@@ -90,9 +89,7 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.d("DEBUGGER", "SCROLLING DATA " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount);
                 if (firstVisibleItem > kittyAdapter.getCount() - 5 && isReady == 0) {
-                    Log.d("DEBUGGER", "Getting Kitties");
                     Toast.makeText(getActivity(), "Loading more images!", Toast.LENGTH_SHORT).show();
                     getKitties();
                 }
@@ -151,7 +148,6 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
         kittyAdapter.addAll(db.getKittiesByCategory(getSearchTerm()));
         kittyAdapter.notifyDataSetChanged();
         kittyList.invalidate();
-        Log.d("DEBUGGER", kittyAdapter.toString());
     }
 
     /**
@@ -173,7 +169,6 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
             protected String doInBackground(Void... params) {
                 //Get next url
                 String url = getSearchURL();
-                Log.d("DEBUGGER", "Getting Kitties URL " + url);
 
                 //HTTP GET Request
                 HttpGet getImages = new HttpGet(url);
@@ -202,13 +197,9 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
                     JSONArray results = new JSONObject(s).getJSONObject("responseData").getJSONArray("results");
                     for (int i = 0; i < results.length(); i++){
                         getImageAndPush(results.getJSONObject(i).getString("unescapedUrl"));
-                        Log.d("DEBUGGER", "Getting Kitties GETTING IMAGE");
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
-                    Log.d("DEBUGGER", "Getting Kitties - caught JSON Exception");
-                    Log.d("DEBUGGER", "Getting Kitties - " + e.getMessage());
-                    Log.d("DEBUGGER", "Getting Kitties - " + s);
                 }
                 isReady -= 1;
             }
@@ -380,7 +371,6 @@ public class FragmentKitties extends FragmentOnSelectRefresh {
                                     db.updateKitty(curKitty);
                                     Toast.makeText(getActivity(), "Successfully adopted new kitty! Check out your litter box!", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Log.d("DEBUGGER", "KITTY IS NULL! ONCLICK");
                                     Toast.makeText(getActivity(), "Oh no! Something bad happened :( and the kitty ran away", Toast.LENGTH_SHORT).show();
                                 }
                                 refreshFragment();

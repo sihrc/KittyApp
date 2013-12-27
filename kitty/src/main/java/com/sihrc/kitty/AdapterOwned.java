@@ -62,7 +62,7 @@ public class AdapterOwned extends ArrayAdapter{
 
         name.setText(kitty.name);
         category.setText(kitty.category);
-        status.setText("Status: N/A");
+        status.setText(kitty.status);
 
         return convertView;
     }

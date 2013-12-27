@@ -26,7 +26,6 @@ public class ActivityKittenDetails extends FragmentActivity{
      * Views
      */
 
-    View v; //The parent view of all other views. Unnecessary in Activities
     EditText category;
     ResizableImageView image;
     Button cancel;
@@ -37,32 +36,29 @@ public class ActivityKittenDetails extends FragmentActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_kitten_details);
 
         //Get Intent Data
         db = new HandlerDatabase(this);
         db.open();
         curKitty = db.getKittyById(getIntent().getStringExtra("kittyId"));
 
-        //View Container
-        v = this.findViewById(android.R.id.content);
-
         //Image
-        image = (ResizableImageView)v.findViewById(R.id.activity_kitten_details_image);
+        image = (ResizableImageView)findViewById(R.id.activity_kitten_details_image);
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image.setImageBitmap(BitmapFactory.decodeByteArray(curKitty.image, 0, curKitty.image.length));
 
         //Edit Text Fields
-        name = (EditText)v.findViewById(R.id.activity_kitten_details_name);
+        name = (EditText)findViewById(R.id.activity_kitten_details_name);
         name.setText(curKitty.name);
-        category = (EditText)v.findViewById(R.id.activity_kitten_details_category);
+        category = (EditText)findViewById(R.id.activity_kitten_details_category);
         category.setText(curKitty.category);
-        status = (EditText)v.findViewById(R.id.activity_kitten_details_status);
+        status = (EditText)findViewById(R.id.activity_kitten_details_status);
         status.setText(curKitty.status);
 
 
         //Save and Cancel Buttons
-        cancel = (Button)v.findViewById(R.id.activity_kitten_details_cancel);
+        cancel = (Button)findViewById(R.id.activity_kitten_details_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,7 +88,7 @@ public class ActivityKittenDetails extends FragmentActivity{
             }
         });
 
-        save = (Button)v.findViewById(R.id.activity_kitten_details_save);
+        save = (Button)findViewById(R.id.activity_kitten_details_save);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,7 +103,7 @@ public class ActivityKittenDetails extends FragmentActivity{
      */
     private void saveKitty(){
         curKitty.name = String.valueOf(name.getText());
-        curKitty.category = String.valueOf(cancel.getText());
+        curKitty.category = String.valueOf(category.getText());
         curKitty.status = String.valueOf(status.getText());
         db.updateKitty(curKitty);
     }
