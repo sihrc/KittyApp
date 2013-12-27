@@ -42,7 +42,7 @@ public class FragmentLitterBox extends Fragment {
         kittyList = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
 
         //ListView Adapter
-        kittyAdapter = new AdapterImage(getActivity(), db.getOwnedKitties());
+        kittyAdapter = new AdapterImage(getActivity(), db.getOwnedKitties(), false);
         kittyList.setAdapter(kittyAdapter);
     }
 }

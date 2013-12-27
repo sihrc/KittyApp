@@ -60,7 +60,7 @@ public class HandlerDatabase {
      * Get
      */
     public ArrayList<Kitty> getAllKitties(){
-        return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, ModelDatabase.KITTY_VISIBLE + "like '%true%'", null, null, null, null));
+        return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, ModelDatabase.KITTY_VISIBLE + " like '%true%'", null, null, null, null));
     }
     public ArrayList<Kitty> getKittiesByCategory(String cat){
         return sweepCursor(database.query(
@@ -74,7 +74,7 @@ public class HandlerDatabase {
         return sweepCursor(database.query(
                 ModelDatabase.TABLE_NAME,
                 allColumns,
-                ModelDatabase.KITTY_FAVORITE + " like 'true'" + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
+                ModelDatabase.KITTY_FAVORITE + " like 'true' " + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
                 null, null, null,
                 ModelDatabase.KITTY_CATEGORY));
     }
@@ -85,7 +85,7 @@ public class HandlerDatabase {
     public void deleteKittiesByCategory(String cat){
         database.delete(
                 ModelDatabase.TABLE_NAME,
-                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%" + "false%'",
+                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%false%'",
                 null
         );
     }
