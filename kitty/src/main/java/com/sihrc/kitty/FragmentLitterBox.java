@@ -39,7 +39,7 @@ public class FragmentLitterBox extends Fragment {
         db = ((ActivityMain) getActivity()).db;
 
         //Setup the ListView
-        kittyList = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
+        kittyList = (ListView) getView().findViewById(R.id.fragment_litterbox_listview);
 
         //ListView Adapter
         kittyAdapter = new AdapterImage(getActivity(), db.getOwnedKitties(), false);

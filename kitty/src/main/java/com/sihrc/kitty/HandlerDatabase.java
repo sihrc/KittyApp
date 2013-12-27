@@ -74,7 +74,7 @@ public class HandlerDatabase {
         return sweepCursor(database.query(
                 ModelDatabase.TABLE_NAME,
                 allColumns,
-                ModelDatabase.KITTY_FAVORITE + " like 'true' " + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
+                ModelDatabase.KITTY_FAVORITE + " like '%true%' AND " + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
                 null, null, null,
                 ModelDatabase.KITTY_CATEGORY));
     }
