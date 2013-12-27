@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by chris on 12/23/13.
@@ -21,7 +20,7 @@ public class HandlerDatabase {
 
     //All Fields
     private String[] allColumns = {
-            ModelDatabase.KITTY_ID,
+            ModelDatabase.KITTY_URL,
             ModelDatabase.KITTY_NAME,
             ModelDatabase.KITTY_SEEN,
             ModelDatabase.KITTY_FAVORITE,
@@ -35,27 +34,27 @@ public class HandlerDatabase {
     }
 
     //Adds New Kitty to the Database
-    public void addKittyToDatabase(byte[] image){
+    public void addKittyToDatabase(String url, byte[] image, String cat){
         ContentValues values = new ContentValues();
-        values.put(ModelDatabase.KITTY_NAME, "");
-        values.put(ModelDatabase.KITTY_SEEN, "never");
-        values.put(ModelDatabase.KITTY_FAVORITE, "false");
-        values.put(ModelDatabase.KITTY_CATEGORY, "none");
-        values.put(ModelDatabase.KITTY_IMAGE, image);
-        Log.d("ImageByteArray", Arrays.toString(image));
-        database.insert(ModelDatabase.TABLE_NAME, null, values);
+            values.put(ModelDatabase.KITTY_URL, url);
+            values.put(ModelDatabase.KITTY_NAME, "");
+            values.put(ModelDatabase.KITTY_SEEN, "never");
+            values.put(ModelDatabase.KITTY_FAVORITE, "false");
+            values.put(ModelDatabase.KITTY_CATEGORY, cat);
+            values.put(ModelDatabase.KITTY_IMAGE, image);
+        database.insertWithOnConflict(ModelDatabase.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     //Update Kitty
     public void updateKitty(Kitty kitty){
         ContentValues values = new ContentValues();
-        values.put(ModelDatabase.KITTY_NAME, kitty.name);
-        values.put(ModelDatabase.KITTY_SEEN, kitty.seen);
-        values.put(ModelDatabase.KITTY_FAVORITE, kitty.favorite);
-        values.put(ModelDatabase.KITTY_CATEGORY, kitty.category);
-        values.put(ModelDatabase.KITTY_IMAGE, kitty.image);
-        
-        database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.KITTY_ID + " like %'" + kitty.id + "%'", null);
+            values.put(ModelDatabase.KITTY_URL, kitty.url);
+            values.put(ModelDatabase.KITTY_NAME, kitty.name);
+            values.put(ModelDatabase.KITTY_SEEN, kitty.seen);
+            values.put(ModelDatabase.KITTY_FAVORITE, kitty.favorite);
+            values.put(ModelDatabase.KITTY_CATEGORY, kitty.category);
+            values.put(ModelDatabase.KITTY_IMAGE, kitty.image);
+        database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.KITTY_URL + " like '%" + kitty.url + "%'", null);
     }
 
     //Get all Kitties from the Database
@@ -68,7 +67,7 @@ public class HandlerDatabase {
         return sweepCursor(database.query(
                 ModelDatabase.TABLE_NAME,
                 allColumns,
-                ModelDatabase.KITTY_CATEGORY + " like %'" + cat + "'% AND " + ModelDatabase.KITTY_FAVORITE + " like %'" + "false '%",
+                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%" + "false%'",
                 null, null, null, null, null
         ));
     }
@@ -77,7 +76,7 @@ public class HandlerDatabase {
     public void deleteKittiesByCategory(String cat){
         database.delete(
                 ModelDatabase.TABLE_NAME,
-                ModelDatabase.KITTY_CATEGORY + " like %'" + cat + "'% AND " + ModelDatabase.KITTY_FAVORITE + " like %'" + "false '%",
+                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%" + "false%'",
                 null
         );
     }
@@ -86,7 +85,7 @@ public class HandlerDatabase {
     public void deleteKittyById(String id){
         database.delete(
                 ModelDatabase.TABLE_NAME,
-                ModelDatabase.KITTY_ID + " like %'" + id,
+                ModelDatabase.KITTY_URL + " like '%" + id + "%'",
                 null
         );
     }
@@ -100,14 +99,13 @@ public class HandlerDatabase {
         while (!cursor.isAfterLast()){
             //Get the Kitty
             Kitty kitty = new Kitty(
+                    cursor.getString(0),
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getBlob(5)
             );
-            //Set the Kitty Id
-            kitty.id = cursor.getString(0);
             //Add the Kitty
             kitties.add(kitty);
             //Go on to the next Kitty

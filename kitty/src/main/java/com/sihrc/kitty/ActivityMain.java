@@ -76,7 +76,7 @@ public class ActivityMain extends FragmentActivity{
         actionBar = getActionBar();
         if (actionBar != null){
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            Log.d("ActionBar", "is null");
+            Log.d("DEBUGGER", "is null");
         }
         //Create the Tab Listener
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {

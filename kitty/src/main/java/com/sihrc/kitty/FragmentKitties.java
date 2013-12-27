@@ -1,6 +1,8 @@
 package com.sihrc.kitty;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,8 +41,8 @@ public class FragmentKitties extends Fragment {
     /**
      * Handles the List of Kitties
      */
-    ArrayList<Kitty> kitties;
     AdapterImage kittyAdapter;
+    ListView kittyList;
 
     /**
      * Database
@@ -55,6 +58,7 @@ public class FragmentKitties extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        setHasOptionsMenu(true); //Options Menu
         //Return the appropriate Fragment View
         return inflater.inflate(R.layout.fragment_kitty_grid, null);
     }
@@ -67,30 +71,30 @@ public class FragmentKitties extends Fragment {
         db = ((ActivityMain) getActivity()).db;
 
         //Setup the ListView
-        ListView grid = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
+        kittyList = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
 
         //ListView Adapter
-        kitties = db.getAllKitties();
-        kittyAdapter = new AdapterImage(getActivity(), kitties);
-        grid.setAdapter(kittyAdapter);
+        kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties());
+        kittyList.setAdapter(kittyAdapter);
 
         //Check for kitties on first run
         if (kittyAdapter.getCount() == 0){
+            Log.d("DEBUGGER", "Getting Kitties");
+            Toast.makeText(getActivity(), "Loading more images!", Toast.LENGTH_LONG).show();
             getKitties();
-            Toast.makeText(getActivity(), "Loaded more images!", Toast.LENGTH_SHORT).show();
         }
 
         //Set OnScroll Listener
-        grid.setOnScrollListener(new AbsListView.OnScrollListener() {
+        kittyList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                //Log.i("SCROLLINGSHIT", firstVisibleItem + " " + visibleItemCount + " " + kittyAdapter.getCount());
-                if (firstVisibleItem > kittyAdapter.getCount() - 10 && isReady == 0){
+                Log.d("DEBUGGER", "SCROLLING DATA " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount);
+                if (firstVisibleItem > kittyAdapter.getCount() - 5 && isReady == 0) {
+                    Log.d("DEBUGGER", "Getting Kitties");
+                    Toast.makeText(getActivity(), "Loading more images!", Toast.LENGTH_SHORT).show();
                     getKitties();
                 }
             }
@@ -102,7 +106,6 @@ public class FragmentKitties extends Fragment {
     public void onStart() {
         super.onStart();
         updateGridView();
-       // Log.d("FragmentKitties", "onStart");
     }
 
     //When the Fragment is resumed
@@ -110,16 +113,16 @@ public class FragmentKitties extends Fragment {
     public void onResume() {
         super.onResume();
         updateGridView();
-        //Log.d("FragmentKitties", "onResume");
     }
 
     //Update the Grid with new kitties
     private void updateGridView(){
-        kitties.clear();
-        kitties.addAll(db.getAllKitties());
+        kittyAdapter.clear();
+        kittyAdapter.addAll(db.getKittiesByCategory(getSearchTerm()));
         kittyAdapter.notifyDataSetChanged();
-        //Log.d("ArrayAdapterSize", kitties.size() + "");
-        //Log.d("ArrayAdapterSize", kittyAdapter.getCount() + "");
+        kittyList.invalidate();
+        Log.d("DEBUGGER", kittyAdapter.toString());
+
     }
 
     //Get New Kitty Urls - Async Task
@@ -139,6 +142,7 @@ public class FragmentKitties extends Fragment {
             protected String doInBackground(Void... params) {
                 //Get next url
                 String url = getSearchURL();
+                Log.d("DEBUGGER", "Getting Kitties URL " + url);
 
                 //HTTP GET Request
                 HttpGet getImages = new HttpGet(url);
@@ -167,13 +171,15 @@ public class FragmentKitties extends Fragment {
                     JSONArray results = new JSONObject(s).getJSONObject("responseData").getJSONArray("results");
                     for (int i = 0; i < results.length(); i++){
                         getImageAndPush(results.getJSONObject(i).getString("unescapedUrl"));
+                        Log.d("DEBUGGER", "Getting Kitties GETTING IMAGE");
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
-                    Log.d("ReturnedResponse", s);
+                    Log.d("DEBUGGER", "Getting Kitties - caught JSON Exception");
+                    Log.d("DEBUGGER", "Getting Kitties - " + e.getMessage());
+                    Log.d("DEBUGGER", "Getting Kitties - " + s);
                 }
                 isReady -= 1;
-
             }
         }.execute();
     }
@@ -219,7 +225,7 @@ public class FragmentKitties extends Fragment {
             @Override
             protected void onPostExecute(byte[] bytes) {
                 super.onPostExecute(bytes);
-                db.addKittyToDatabase(bytes);
+                db.addKittyToDatabase(url, bytes, getSearchTerm());
                 updateGridView();
                 isReady -= 1;
             }
@@ -247,10 +253,58 @@ public class FragmentKitties extends Fragment {
 
     private void hideAllKitties(){
         //TODO
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Hide Images?")
+                .setMessage("Are you sure you want to hide all the kitties? You'll have to reload them all to get to them again.")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        db.deleteKittiesByCategory(getSearchTerm());
+                        updateGridView();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
     }
 
+    /**
+     * Handles Search Terms
+     */
     private void changeSearchTerm(){
-        //TODO
-        getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("search", "What").commit();
+        final EditText searchInput = new EditText(getActivity());
+        searchInput.setHint("Search Terms");
+        searchInput.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Change Image Subject")
+                .setMessage("What would you like to search for?")
+                .setView(searchInput)
+                .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String previousSearch = getSearchTerm();
+/*                        while (isReady != 0) {
+                            db.deleteKittiesByCategory(previousSearch);
+                        }*/
+                        db.deleteKittiesByCategory(previousSearch);
+                        getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("search", String.valueOf(searchInput.getText())).commit();
+                        updateGridView();
+                        getKitties();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+    private String getSearchTerm(){
+        return getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("search", "cute baby kitten");
     }
 }

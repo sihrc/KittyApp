@@ -14,7 +14,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "kitties";
 
     //Table Fields
-    public static final String KITTY_ID = "id";
+    public static final String KITTY_URL = "url";
     public static final String KITTY_NAME = "name";
     public static final String KITTY_SEEN = "seen";
     public static final String KITTY_FAVORITE = "favorite";
@@ -28,7 +28,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
     // ModelDatabase creation sql statement
     private static final String DATABASE_CREATE = "create table "
             + TABLE_NAME + "("
-            + KITTY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + KITTY_URL + " TEXT NOT NULL UNIQUE, "
             + KITTY_NAME + " TEXT NOT NULL, "
             + KITTY_SEEN + " TEXT NOT NULL, "
             + KITTY_FAVORITE + " TEXT NOT NULL, "

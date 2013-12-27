@@ -3,12 +3,12 @@
     tools:context="com.sihrc.kitty.MyKittiesActivity" >
 
     <item android:id="@+id/action_hide"
-        android:title="Hide"
+        android:title="Clear"
         android:orderInCategory="100"
         android:showAsAction="always" />
 
     <item android:id="@+id/action_search"
-        android:title="Change"
+        android:title="Search"
         android:orderInCategory="100"
         android:showAsAction="always" />
 </menu>

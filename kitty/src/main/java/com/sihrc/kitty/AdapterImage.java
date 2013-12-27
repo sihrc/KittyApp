@@ -27,6 +27,18 @@ public class AdapterImage extends ArrayAdapter{
     }
 
     @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for (Kitty kitty: this.kitties) {
+            sb.append("Kitty ");
+            sb.append(kitty.url);
+            sb.append(" ");
+            sb.append(kitty.category);
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView image;
         if (convertView == null){ //Grab View if haven't already
