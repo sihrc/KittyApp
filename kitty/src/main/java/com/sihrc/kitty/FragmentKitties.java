@@ -352,6 +352,8 @@ public class FragmentKitties extends Fragment {
             public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
                 showSaveKittyDialog();
                 LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                
                 final EditText nameInput = new EditText(getActivity());
                 final EditText catInput = new EditText(getActivity());
 
