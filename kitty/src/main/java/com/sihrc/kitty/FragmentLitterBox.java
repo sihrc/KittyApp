@@ -84,7 +84,7 @@ public class FragmentLitterBox extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                 }
-                            });
+                            }).show();
                 }
                 return false;
             }
