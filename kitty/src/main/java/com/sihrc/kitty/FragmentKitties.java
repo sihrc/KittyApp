@@ -153,7 +153,6 @@ public class FragmentKitties extends Fragment {
         kittyAdapter.notifyDataSetChanged();
         kittyList.invalidate();
         Log.d("DEBUGGER", kittyAdapter.toString());
-
     }
 
     /**
@@ -353,7 +352,7 @@ public class FragmentKitties extends Fragment {
                 showSaveKittyDialog();
                 LinearLayout layout = new LinearLayout(getActivity());
                 layout.setOrientation(LinearLayout.VERTICAL);
-                
+
                 final EditText nameInput = new EditText(getActivity());
                 final EditText catInput = new EditText(getActivity());
 
