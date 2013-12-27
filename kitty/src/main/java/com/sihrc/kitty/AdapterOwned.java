@@ -46,7 +46,7 @@ public class AdapterOwned extends ArrayAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null){ //Grab View if haven't already
-            convertView = activity.getLayoutInflater().inflate(R.layout.listitem_kitty,null);
+            convertView = activity.getLayoutInflater().inflate(R.layout.listitem_owned_kitty,null);
         }
 
         //Set Image based on BitMap

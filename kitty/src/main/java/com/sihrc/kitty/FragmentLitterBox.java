@@ -25,7 +25,7 @@ public class FragmentLitterBox extends Fragment {
     /**
      * Handles the List of Kitties
      */
-    AdapterImage kittyAdapter;
+    AdapterOwned kittyAdapter;
     ListView kittyList;
 
     //When the View is first created
@@ -48,7 +48,7 @@ public class FragmentLitterBox extends Fragment {
         kittyList = (ListView) getView().findViewById(R.id.fragment_litterbox_listview);
 
         //ListView Adapter
-        kittyAdapter = new AdapterImage(getActivity(), db.getOwnedKitties(), false);
+        kittyAdapter = new AdapterOwned(getActivity(), db.getOwnedKitties(), false);
         kittyList.setAdapter(kittyAdapter);
 
         kittyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -65,6 +65,7 @@ public class FragmentLitterBox extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 final Kitty curKitty = (Kitty) parent.getItemAtPosition(position);
+                Toast.makeText(getActivity(), "I WAS LONG CLICKED", Toast.LENGTH_SHORT).show();
                 if (curKitty != null){
                     new AlertDialog.Builder(getActivity())
                             .setTitle("View details for " + curKitty.name + "?")
