@@ -19,6 +19,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
     public static final String KITTY_VISIBLE = "visible";
     public static final String KITTY_FAVORITE = "favorite";
     public static final String KITTY_CATEGORY = "category";
+    public static final String KITTY_STATUS = "status";
     public static final String KITTY_IMAGE = "image";
 
     //Database Info
@@ -33,6 +34,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
             + KITTY_VISIBLE + " TEXT NOT NULL, "
             + KITTY_FAVORITE + " TEXT NOT NULL, "
             + KITTY_CATEGORY + " TEXT NOT NULL, "
+            + KITTY_STATUS + " TEXT NOT NULL, "
             + KITTY_IMAGE + " BLOB );";
 
     //Default Constructor

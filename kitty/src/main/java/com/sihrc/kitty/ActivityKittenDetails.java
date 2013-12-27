@@ -1,105 +1,119 @@
 package com.sihrc.kitty;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 /**
  * Created by chris on 12/22/13.
  */
 public class ActivityKittenDetails extends FragmentActivity{
     /**
-     * Swipe View Variables
-     */
-    ViewPager pager;
-    AdapterFragmentCollection fragmentAdapter;
-    ActionBar actionBar;
-
-    /**
      * Database
      */
     HandlerDatabase db;
+    Kitty curKitty;
 
+    /**
+     * Views
+     */
+
+    View v; //The parent view of all other views. Unnecessary in Activities
+    EditText category;
+    ResizableImageView image;
+    Button cancel;
+    EditText status;
+    EditText name;
+    Button save;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /**
-         * Database
-         */
-
-        db = new HandlerDatabase(this);
+        //Get Intent Data
         db.open();
+        curKitty = db.getKittyById(getIntent().getStringExtra("kittyId"));
 
-        /**
-         * ViewPager
-         */
+        //View Container
+        v = this.findViewById(android.R.id.content);
 
-        //Pass the fragment manager to the collection adapter
-        fragmentAdapter = new AdapterFragmentCollection(
-                getSupportFragmentManager()
-        );
+        //Image
+        image = (ResizableImageView)v.findViewById(R.id.activity_kitten_details_image);
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        image.setImageBitmap(BitmapFactory.decodeByteArray(curKitty.image, 0, curKitty.image.length));
 
-        //Get the ViewPager View from XML
-        pager = (ViewPager) findViewById(R.id.activity_main_pager);
+        //Edit Text Fields
+        name = (EditText)v.findViewById(R.id.activity_kitten_details_name);
+        name.setText(curKitty.name);
+        category = (EditText)v.findViewById(R.id.activity_kitten_details_category);
+        category.setText(curKitty.category);
+        status = (EditText)v.findViewById(R.id.activity_kitten_details_status);
+        status.setText(curKitty.status);
 
-        //Set the view pager's adapter
-        pager.setAdapter(fragmentAdapter);
 
-        //When Page Changes - pager should change accordingly
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        //Save and Cancel Buttons
+        cancel = (Button)v.findViewById(R.id.activity_kitten_details_cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPageScrolled(int i, float v, int i2) {}
-
-            @Override
-            public void onPageSelected(int i) {
-                if (actionBar != null){
-                    actionBar.setSelectedNavigationItem(i);
+            public void onClick(View v) {
+                if (!curKitty.name.equals(String.valueOf(name.getText()))
+                        || !curKitty.category.equals(String.valueOf(category.getText()))
+                        || !curKitty.status.equals(String.valueOf(status.getText()))){
+                    new AlertDialog.Builder(ActivityKittenDetails.this)
+                            .setTitle("Save changes?")
+                            .setMessage("Do you want to save your changes before you leave?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    saveKitty();
+                                    ActivityKittenDetails.this.finish();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    ActivityKittenDetails.this.finish();
+                                }
+                            }).show();
+                } else {
+                    finish();
                 }
             }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {}
         });
 
-        /**
-         * ActionBar Tabs
-         */
-        //Get the ActionBar
-        actionBar = getActionBar();
-        if (actionBar != null){
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            Log.d("DEBUGGER", "is null");
-        }
-        //Create the Tab Listener
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+        save = (Button)v.findViewById(R.id.activity_kitten_details_save);
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                pager.setCurrentItem(tab.getPosition());
+            public void onClick(View v) {
+                saveKitty();
+                ActivityKittenDetails.this.finish();
             }
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {}
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {}
-        };
-
-        //Create Tabs and Set Listener
-        //Tab 1
-        actionBar.addTab(actionBar.newTab().setText("New Kitties").setTabListener(tabListener));
-        //Tab 2
-        actionBar.addTab(actionBar.newTab().setText("Litter Box").setTabListener(tabListener));
-
+        });
     }
 
+    /**
+     * Update Kitty
+     */
+    private void saveKitty(){
+        curKitty.name = String.valueOf(name.getText());
+        curKitty.category = String.valueOf(cancel.getText());
+        curKitty.status = String.valueOf(status.getText());
+        db.updateKitty(curKitty);
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);

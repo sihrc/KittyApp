@@ -4,17 +4,18 @@ package com.sihrc.kitty;
  * Created by chris on 12/23/13.
  */
 public class Kitty {
-    String url, name, visible, favorite, category;
+    String url, name, visible, favorite, category, status;
     byte[] image;
 
     //Public Constructor to create a kitty
-    public Kitty(String url, String name, String visible, String favorite, String category, byte[] image){
+    public Kitty(String url, String name, String visible, String favorite, String category, String status, byte[] image){
         this.url = url;
         this.name = name;
         this.visible = visible;
         this.favorite = favorite;
         this.category = category;
         this.image = image;
+        this.status = status;
     }
 
     /**

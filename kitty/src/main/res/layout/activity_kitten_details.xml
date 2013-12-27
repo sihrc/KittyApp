@@ -14,7 +14,7 @@
         android:layout_below="@id/activity_kitten_details_image"
         android:gravity="center_horizontal"
         android:paddingTop="10dp"/>
-    
+
     <EditText
         android:hint = "Category"
         android:id="@+id/activity_kitten_details_category"

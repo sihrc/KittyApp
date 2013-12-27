@@ -24,6 +24,7 @@ public class HandlerDatabase {
             ModelDatabase.KITTY_VISIBLE,
             ModelDatabase.KITTY_FAVORITE,
             ModelDatabase.KITTY_CATEGORY,
+            ModelDatabase.KITTY_STATUS,
             ModelDatabase.KITTY_IMAGE
     };
 
@@ -42,6 +43,7 @@ public class HandlerDatabase {
             values.put(ModelDatabase.KITTY_VISIBLE, "true");
             values.put(ModelDatabase.KITTY_FAVORITE, "false");
             values.put(ModelDatabase.KITTY_CATEGORY, cat);
+            values.put(ModelDatabase.KITTY_STATUS, "Status: N/A");
             values.put(ModelDatabase.KITTY_IMAGE, image);
         database.insertWithOnConflict(ModelDatabase.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
@@ -52,6 +54,7 @@ public class HandlerDatabase {
             values.put(ModelDatabase.KITTY_VISIBLE, kitty.visible);
             values.put(ModelDatabase.KITTY_FAVORITE, kitty.favorite);
             values.put(ModelDatabase.KITTY_CATEGORY, kitty.category);
+            values.put(ModelDatabase.KITTY_STATUS, kitty.status);
             values.put(ModelDatabase.KITTY_IMAGE, kitty.image);
         database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.KITTY_URL + " like '%" + kitty.url + "%'", null);
     }
@@ -77,6 +80,14 @@ public class HandlerDatabase {
                 ModelDatabase.KITTY_FAVORITE + " like '%true%' AND " + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
                 null, null, null,
                 ModelDatabase.KITTY_CATEGORY));
+    }
+    public Kitty getKittyById(String id){
+        return sweepCursor(database.query(
+                ModelDatabase.TABLE_NAME,
+                allColumns,
+                ModelDatabase.KITTY_URL + " like '%" + id + "%'",
+                null, null, null, null
+        )).get(0);
     }
 
     /**
@@ -114,7 +125,8 @@ public class HandlerDatabase {
                     cursor.getString(2),
                     cursor.getString(3),
                     cursor.getString(4),
-                    cursor.getBlob(5)
+                    cursor.getString(5),
+                    cursor.getBlob(6)
             );
             //Add the Kitty
             kitties.add(kitty);
