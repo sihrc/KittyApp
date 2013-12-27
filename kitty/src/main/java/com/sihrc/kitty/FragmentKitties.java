@@ -14,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,8 +33,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by chris on 12/22/13.
@@ -74,7 +74,7 @@ public class FragmentKitties extends Fragment {
         kittyList = (ListView) getView().findViewById(R.id.fragment_kitty_listView);
 
         //ListView Adapter
-        kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties());
+        kittyAdapter = new AdapterImage(getActivity(), db.getAllKitties(), false);
         kittyList.setAdapter(kittyAdapter);
 
         //Check for kitties on first run
@@ -97,6 +97,37 @@ public class FragmentKitties extends Fragment {
                     Toast.makeText(getActivity(), "Loading more images!", Toast.LENGTH_SHORT).show();
                     getKitties();
                 }
+            }
+        });
+
+        //OnClick Listener
+        kittyList.setOnItemClickListener(showSaveKittyDialog());
+
+        //OnLongClick Listener
+        kittyList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Never See this Again!")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Kitty curKitty = ((Kitty)parent.getItemAtPosition(position));
+                                if (curKitty != null){
+                                    curKitty.visible = "false";
+                                    db.updateKitty(curKitty);
+                                    updateGridView();
+                                }
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+                return false;
             }
         });
     }
@@ -125,7 +156,9 @@ public class FragmentKitties extends Fragment {
 
     }
 
-    //Get New Kitty Urls - Async Task
+    /**
+     * Load Kitties from Google Image Search
+     */
     private void getKitties(){
         new AsyncTask<Void, Void, String>() {
             HttpClient client = new DefaultHttpClient();
@@ -183,13 +216,10 @@ public class FragmentKitties extends Fragment {
             }
         }.execute();
     }
-
-    //Get Search URL
     public String getSearchURL(){
         String search = getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("search", "cute baby kitten");
         return "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + search.replace(" ", "+") + "&start=" + db.getKittiesByCategory(search).size() + "&userip=MyIP&imgsz=large";
     }
-    //Get Image and Push
     private void getImageAndPush(final String url){
         new AsyncTask<Void, Void, byte[]>(){
             @Override
@@ -232,12 +262,14 @@ public class FragmentKitties extends Fragment {
         }.execute();
     }
 
+    /**
+     * Options Menu Methods
+     */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         getActivity().getMenuInflater().inflate(R.menu.kitties, menu);
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -251,6 +283,9 @@ public class FragmentKitties extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Clears the list
+     */
     private void hideAllKitties(){
         //TODO
         new AlertDialog.Builder(getActivity())
@@ -306,5 +341,59 @@ public class FragmentKitties extends Fragment {
     }
     private String getSearchTerm(){
         return getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).getString("search", "cute baby kitten");
+    }
+
+    /**
+     * Dialog for Saving a Kitty
+     */
+    private AdapterView.OnItemClickListener showSaveKittyDialog(){
+        return new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
+                showSaveKittyDialog();
+                LinearLayout layout = new LinearLayout(getActivity());
+                final EditText nameInput = new EditText(getActivity());
+                final EditText catInput = new EditText(getActivity());
+
+                nameInput.setHint("Enter Name Here");
+                nameInput.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                catInput.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                catInput.setHint("Enter Category Here");
+                catInput.setText(getSearchTerm());
+
+                layout.addView(nameInput);
+                layout.addView(catInput);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Add to LitterBox?")
+                        .setMessage("You can give this kitty a name now, or later if you wish.")
+                        .setView(layout)
+                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Kitty curKitty = (Kitty) parent.getItemAtPosition(position);
+                                if (curKitty != null) {
+                                    //Get Kitty Information and Update
+                                    curKitty.favorite = "true";
+                                    curKitty.setName((String.valueOf(nameInput.getText()).equals("")) ? "Nameless" : (String.valueOf(nameInput.getText())));
+                                    curKitty.setCategory(String.valueOf(catInput.getText()));
+                                    //Update in Database
+                                    db.updateKitty(curKitty);
+                                    Toast.makeText(getActivity(), "Successfully adopted new kitty! Check out your litter box!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.d("DEBUGGER", "KITTY IS NULL! ONCLICK");
+                                    Toast.makeText(getActivity(), "Oh no! Something bad happened :( and the kitty ran away", Toast.LENGTH_SHORT).show();
+                                }
+                                updateGridView();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                }).show();
+            }
+        };
     }
 }

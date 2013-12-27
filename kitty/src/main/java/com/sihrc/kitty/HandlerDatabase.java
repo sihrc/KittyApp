@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -22,7 +21,7 @@ public class HandlerDatabase {
     private String[] allColumns = {
             ModelDatabase.KITTY_URL,
             ModelDatabase.KITTY_NAME,
-            ModelDatabase.KITTY_SEEN,
+            ModelDatabase.KITTY_VISIBLE,
             ModelDatabase.KITTY_FAVORITE,
             ModelDatabase.KITTY_CATEGORY,
             ModelDatabase.KITTY_IMAGE
@@ -33,46 +32,56 @@ public class HandlerDatabase {
         model = new ModelDatabase(context);
     }
 
-    //Adds New Kitty to the Database
+    /**
+     * Add
+     */
     public void addKittyToDatabase(String url, byte[] image, String cat){
         ContentValues values = new ContentValues();
             values.put(ModelDatabase.KITTY_URL, url);
             values.put(ModelDatabase.KITTY_NAME, "");
-            values.put(ModelDatabase.KITTY_SEEN, "never");
+            values.put(ModelDatabase.KITTY_VISIBLE, "true");
             values.put(ModelDatabase.KITTY_FAVORITE, "false");
             values.put(ModelDatabase.KITTY_CATEGORY, cat);
             values.put(ModelDatabase.KITTY_IMAGE, image);
         database.insertWithOnConflict(ModelDatabase.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
-
-    //Update Kitty
     public void updateKitty(Kitty kitty){
         ContentValues values = new ContentValues();
             values.put(ModelDatabase.KITTY_URL, kitty.url);
             values.put(ModelDatabase.KITTY_NAME, kitty.name);
-            values.put(ModelDatabase.KITTY_SEEN, kitty.seen);
+            values.put(ModelDatabase.KITTY_VISIBLE, kitty.visible);
             values.put(ModelDatabase.KITTY_FAVORITE, kitty.favorite);
             values.put(ModelDatabase.KITTY_CATEGORY, kitty.category);
             values.put(ModelDatabase.KITTY_IMAGE, kitty.image);
         database.update(ModelDatabase.TABLE_NAME, values, ModelDatabase.KITTY_URL + " like '%" + kitty.url + "%'", null);
     }
 
-    //Get all Kitties from the Database
+    /**
+     * Get
+     */
     public ArrayList<Kitty> getAllKitties(){
-        return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, null, null, null, null, null));
+        return sweepCursor(database.query(ModelDatabase.TABLE_NAME, allColumns, ModelDatabase.KITTY_VISIBLE + "like '%true%'", null, null, null, null));
     }
-
-
     public ArrayList<Kitty> getKittiesByCategory(String cat){
         return sweepCursor(database.query(
                 ModelDatabase.TABLE_NAME,
                 allColumns,
-                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%" + "false%'",
+                ModelDatabase.KITTY_CATEGORY + " like '%" + cat + "%' AND " + ModelDatabase.KITTY_FAVORITE + " like '%false%' AND " + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
                 null, null, null, null, null
         ));
     }
+    public ArrayList<Kitty> getOwnedKitties(){
+        return sweepCursor(database.query(
+                ModelDatabase.TABLE_NAME,
+                allColumns,
+                ModelDatabase.KITTY_FAVORITE + " like 'true'" + ModelDatabase.KITTY_VISIBLE + " like '%true%'",
+                null, null, null,
+                ModelDatabase.KITTY_CATEGORY));
+    }
 
-    //Delete Kitties
+    /**
+     * Delete
+     */
     public void deleteKittiesByCategory(String cat){
         database.delete(
                 ModelDatabase.TABLE_NAME,
@@ -80,8 +89,6 @@ public class HandlerDatabase {
                 null
         );
     }
-
-    //Delete Kitty
     public void deleteKittyById(String id){
         database.delete(
                 ModelDatabase.TABLE_NAME,
@@ -90,6 +97,9 @@ public class HandlerDatabase {
         );
     }
 
+    /**
+     * Additional Helpers
+     */
     //Sweep Through Cursor and return a List of Kitties
     private ArrayList<Kitty> sweepCursor(Cursor cursor){
         ArrayList<Kitty> kitties = new ArrayList<Kitty>();

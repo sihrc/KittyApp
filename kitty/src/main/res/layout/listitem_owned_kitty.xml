@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/listitem_owned_kitty_image"
+        android:contentDescription="kitty_icon"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/listitem_owned_kitty_name"
+        android:text = "charlie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/listitem_owned_kitty_image"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
+        android:textSize = "26sp"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/listitem_owned_kitty_category"
+        android:text = "cute kitten"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listitem_owned_kitty_name"
+        android:layout_alignLeft = "@id/listitem_owned_kitty_name"
+        android:fontFamily="sans-serif-light"
+        android:textStyle="italic"
+        android:textSize = "20sp"/>
+    <TextView
+        android:id="@+id/listitem_owned_kitty_status"
+        android:text = "Status: N/A"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft = "@id/listitem_owned_kitty_name"
+        android:layout_below="@id/listitem_owned_kitty_category"
+        android:fontFamily="sans-serif-light"
+        android:textSize = "20sp"/>
+</RelativeLayout>

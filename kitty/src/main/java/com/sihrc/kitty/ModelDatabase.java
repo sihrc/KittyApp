@@ -16,7 +16,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
     //Table Fields
     public static final String KITTY_URL = "url";
     public static final String KITTY_NAME = "name";
-    public static final String KITTY_SEEN = "seen";
+    public static final String KITTY_VISIBLE = "visible";
     public static final String KITTY_FAVORITE = "favorite";
     public static final String KITTY_CATEGORY = "category";
     public static final String KITTY_IMAGE = "image";
@@ -30,7 +30,7 @@ public class ModelDatabase extends SQLiteOpenHelper {
             + TABLE_NAME + "("
             + KITTY_URL + " TEXT NOT NULL UNIQUE, "
             + KITTY_NAME + " TEXT NOT NULL, "
-            + KITTY_SEEN + " TEXT NOT NULL, "
+            + KITTY_VISIBLE + " TEXT NOT NULL, "
             + KITTY_FAVORITE + " TEXT NOT NULL, "
             + KITTY_CATEGORY + " TEXT NOT NULL, "
             + KITTY_IMAGE + " BLOB );";
