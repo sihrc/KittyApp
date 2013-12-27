@@ -62,6 +62,7 @@ public class ActivityMain extends FragmentActivity{
             public void onPageSelected(int i) {
                 if (actionBar != null){
                     actionBar.setSelectedNavigationItem(i);
+                    ((FragmentOnSelectRefresh) fragmentAdapter.getItem(i)).refreshFragment();
                 }
             }
 

@@ -1,14 +1,10 @@
 package com.sihrc.kitty;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +40,7 @@ public class ActivityKittenDetails extends FragmentActivity{
         setContentView(R.layout.activity_main);
 
         //Get Intent Data
+        db = new HandlerDatabase(this);
         db.open();
         curKitty = db.getKittyById(getIntent().getStringExtra("kittyId"));
 

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,7 @@ import android.widget.Toast;
 /**
  * Created by chris on 12/22/13.
  */
-public class FragmentLitterBox extends Fragment {
+public class FragmentLitterBox extends FragmentOnSelectRefresh {
     /**
      * Database
      */
@@ -34,6 +33,7 @@ public class FragmentLitterBox extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true); //Options Menu
         //Return the appropriate Fragment View
+        Log.d("FragmentLitterBox", "OnCreateView");
         return inflater.inflate(R.layout.fragment_litterbox, null);
     }
 
@@ -41,6 +41,7 @@ public class FragmentLitterBox extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.d("FragmentLitterBox", "OnActivityCreated");
         //Grab the Database Handler from the Activity
         db = ((ActivityMain) getActivity()).db;
 
@@ -57,6 +58,7 @@ public class FragmentLitterBox extends Fragment {
                 Kitty curKitty = (Kitty) parent.getItemAtPosition(position);
                 if (curKitty != null){
                     Toast.makeText(getActivity(), curKitty.name + " says hi!", Toast.LENGTH_SHORT).show();
+                    refreshFragment();
                 }
             }
         });
@@ -76,6 +78,7 @@ public class FragmentLitterBox extends Fragment {
                                     in.putExtra("kittyId", curKitty.url);
                                     dialog.dismiss();
                                     startActivity(in);
+                                    refreshFragment();
 
                                 }
                             })
@@ -94,7 +97,7 @@ public class FragmentLitterBox extends Fragment {
     /**
      * Syncs the database with the listview
      */
-    private void updateGridView(){
+    public void refreshFragment(){
         kittyAdapter.clear();
         kittyAdapter.addAll(db.getOwnedKitties());
         kittyAdapter.notifyDataSetChanged();
@@ -105,12 +108,14 @@ public class FragmentLitterBox extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateGridView();
+        refreshFragment();
+        Log.d("FragmentLitterBox", "OnStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateGridView();
+        refreshFragment();
+        Log.d("FragmentLitterBox", "OnResume");
     }
 }

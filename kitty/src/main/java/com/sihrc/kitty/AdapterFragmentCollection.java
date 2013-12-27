@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class AdapterFragmentCollection extends FragmentStatePagerAdapter {
     //Fragment ArrayList
-    ArrayList<Fragment> fragments = new ArrayList<Fragment>();
+    ArrayList<FragmentOnSelectRefresh> fragments = new ArrayList<FragmentOnSelectRefresh>();
 
     //Default Constructor
     public AdapterFragmentCollection(FragmentManager fragMan){

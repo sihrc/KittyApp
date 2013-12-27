@@ -2,13 +2,10 @@ package com.sihrc.kitty;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
-import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +36,7 @@ import java.io.InputStreamReader;
 /**
  * Created by chris on 12/22/13.
  */
-public class FragmentKitties extends Fragment {
+public class FragmentKitties extends FragmentOnSelectRefresh {
     /**
      * Handles the List of Kitties
      */
@@ -116,7 +115,7 @@ public class FragmentKitties extends Fragment {
                                 if (curKitty != null){
                                     curKitty.visible = "false";
                                     db.updateKitty(curKitty);
-                                    updateGridView();
+                                    refreshFragment();
                                 }
                                 dialog.dismiss();
                             }
@@ -136,18 +135,18 @@ public class FragmentKitties extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateGridView();
+        refreshFragment();
     }
 
     //When the Fragment is resumed
     @Override
     public void onResume() {
         super.onResume();
-        updateGridView();
+        refreshFragment();
     }
 
     //Update the Grid with new kitties
-    private void updateGridView(){
+    public void refreshFragment(){
         kittyAdapter.clear();
         kittyAdapter.addAll(db.getKittiesByCategory(getSearchTerm()));
         kittyAdapter.notifyDataSetChanged();
@@ -255,7 +254,7 @@ public class FragmentKitties extends Fragment {
             protected void onPostExecute(byte[] bytes) {
                 super.onPostExecute(bytes);
                 db.addKittyToDatabase(url, bytes, getSearchTerm());
-                updateGridView();
+                refreshFragment();
                 isReady -= 1;
             }
         }.execute();
@@ -294,7 +293,7 @@ public class FragmentKitties extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         db.deleteKittiesByCategory(getSearchTerm());
-                        updateGridView();
+                        refreshFragment();
                         dialog.dismiss();
                     }
                 })
@@ -326,7 +325,7 @@ public class FragmentKitties extends Fragment {
                         }*/
                         db.deleteKittiesByCategory(previousSearch);
                         getActivity().getSharedPreferences("KittyApp", Context.MODE_PRIVATE).edit().putString("search", String.valueOf(searchInput.getText())).commit();
-                        updateGridView();
+                        refreshFragment();
                         getKitties();
                         dialog.dismiss();
                     }
@@ -384,7 +383,7 @@ public class FragmentKitties extends Fragment {
                                     Log.d("DEBUGGER", "KITTY IS NULL! ONCLICK");
                                     Toast.makeText(getActivity(), "Oh no! Something bad happened :( and the kitty ran away", Toast.LENGTH_SHORT).show();
                                 }
-                                updateGridView();
+                                refreshFragment();
                                 dialog.dismiss();
                             }
                         })
